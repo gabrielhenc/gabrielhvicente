@@ -1,8 +1,59 @@
+"use client";
+
+import { useState } from "react";
 import Container from "@/components/ui/Container";
 import { siteConfig } from "@/lib/site";
 import { ArrowUpRight, MessageCircle } from "lucide-react";
 
 export default function SpeakingFormSection() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    setIsSubmitting(true);
+    setStatus("idle");
+
+    const formData = new FormData(event.currentTarget);
+
+    const payload = {
+      nome: formData.get("nome"),
+      empresa: formData.get("empresa"),
+      dataPrevista: formData.get("dataPrevista"),
+      email: formData.get("email"),
+      whatsapp: formData.get("whatsapp"),
+      evento: formData.get("evento"),
+      participantes: formData.get("participantes"),
+      tema: formData.get("tema"),
+      mensagem: formData.get("mensagem"),
+    };
+
+    try {
+  const response = await fetch("/api/contact", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const result = await response.json();
+
+  if (!response.ok || !result.success) {
+    console.error("Erro no envio:", result);
+    throw new Error("Erro ao enviar formulário");
+  }
+
+  setStatus("success");
+  event.currentTarget.reset();
+} catch {
+      setStatus("error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <section id="contato" className="relative overflow-hidden bg-[#080808] py-28">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,#0047ff24,transparent_30%),radial-gradient(circle_at_85%_75%,#ff6e0224,transparent_32%)]" />
@@ -50,12 +101,17 @@ export default function SpeakingFormSection() {
             </div>
           </div>
 
-          <form className="rounded-[2rem] border border-white/10 bg-[#111111]/80 p-6 shadow-2xl backdrop-blur md:p-8">
+          <form
+            onSubmit={handleSubmit}
+            className="rounded-[2rem] border border-white/10 bg-[#111111]/80 p-6 shadow-2xl backdrop-blur md:p-8"
+          >
             <div className="grid gap-5 md:grid-cols-2">
               <div>
                 <label className="text-sm font-medium text-zinc-300">Nome</label>
                 <input
+                  name="nome"
                   type="text"
+                  required
                   placeholder="Seu nome"
                   className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none transition placeholder:text-zinc-600 focus:border-[#FF6E02]"
                 />
@@ -64,15 +120,20 @@ export default function SpeakingFormSection() {
               <div>
                 <label className="text-sm font-medium text-zinc-300">Empresa</label>
                 <input
+                  name="empresa"
                   type="text"
+                  required
                   placeholder="Nome da empresa"
                   className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none transition placeholder:text-zinc-600 focus:border-[#FF6E02]"
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium text-zinc-300">Data prevista</label>
+                <label className="text-sm font-medium text-zinc-300">
+                  Data prevista
+                </label>
                 <input
+                  name="dataPrevista"
                   type="text"
                   placeholder="Ex: 15/09/2026 ou ainda indefinida"
                   className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none transition placeholder:text-zinc-600 focus:border-[#FF6E02]"
@@ -82,7 +143,9 @@ export default function SpeakingFormSection() {
               <div>
                 <label className="text-sm font-medium text-zinc-300">E-mail</label>
                 <input
+                  name="email"
                   type="email"
+                  required
                   placeholder="seuemail@empresa.com"
                   className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none transition placeholder:text-zinc-600 focus:border-[#FF6E02]"
                 />
@@ -91,7 +154,9 @@ export default function SpeakingFormSection() {
               <div>
                 <label className="text-sm font-medium text-zinc-300">WhatsApp</label>
                 <input
+                  name="whatsapp"
                   type="tel"
+                  required
                   placeholder="(31) 99999-9999"
                   className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none transition placeholder:text-zinc-600 focus:border-[#FF6E02]"
                 />
@@ -101,7 +166,10 @@ export default function SpeakingFormSection() {
                 <label className="text-sm font-medium text-zinc-300">
                   Tipo de evento
                 </label>
-                <select className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-zinc-300 outline-none transition focus:border-[#FF6E02]">
+                <select
+                  name="evento"
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-zinc-300 outline-none transition focus:border-[#FF6E02]"
+                >
                   <option>Evento corporativo</option>
                   <option>Convenção</option>
                   <option>Workshop</option>
@@ -116,6 +184,7 @@ export default function SpeakingFormSection() {
                   Quantidade de participantes
                 </label>
                 <input
+                  name="participantes"
                   type="text"
                   placeholder="Ex: 50, 100, 500..."
                   className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none transition placeholder:text-zinc-600 focus:border-[#FF6E02]"
@@ -126,7 +195,10 @@ export default function SpeakingFormSection() {
                 <label className="text-sm font-medium text-zinc-300">
                   Tema de interesse
                 </label>
-                <select className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-zinc-300 outline-none transition focus:border-[#FF6E02]">
+                <select
+                  name="tema"
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-zinc-300 outline-none transition focus:border-[#FF6E02]"
+                >
                   <option>Liderança na prática</option>
                   <option>Formação de novos líderes</option>
                   <option>Tecnologia e transformação digital</option>
@@ -137,9 +209,13 @@ export default function SpeakingFormSection() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="text-sm font-medium text-zinc-300">Mensagem</label>
+                <label className="text-sm font-medium text-zinc-300">
+                  Mensagem
+                </label>
                 <textarea
+                  name="mensagem"
                   rows={5}
+                  required
                   placeholder="Conte um pouco sobre o evento, objetivo, local e público esperado."
                   className="mt-2 w-full resize-none rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none transition placeholder:text-zinc-600 focus:border-[#FF6E02]"
                 />
@@ -147,16 +223,26 @@ export default function SpeakingFormSection() {
             </div>
 
             <button
-              type="button"
-              className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#FF6E02] px-6 py-4 font-semibold text-white transition hover:scale-[1.01] hover:opacity-90"
+              type="submit"
+              disabled={isSubmitting}
+              className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#FF6E02] px-6 py-4 font-semibold text-white transition hover:scale-[1.01] hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Solicitar proposta
+              {isSubmitting ? "Enviando..." : "Solicitar proposta"}
               <ArrowUpRight size={20} />
             </button>
 
-            <p className="mt-4 text-center text-xs text-zinc-500">
-              Em breve este formulário será integrado ao envio automático por e-mail.
-            </p>
+            {status === "success" && (
+              <p className="mt-4 text-center text-sm font-medium text-green-400">
+                Solicitação enviada com sucesso. Em breve entrarei em contato.
+              </p>
+            )}
+
+            {status === "error" && (
+              <p className="mt-4 text-center text-sm font-medium text-red-400">
+                Não foi possível enviar sua solicitação. Tente novamente ou me
+                chame pelo WhatsApp.
+              </p>
+            )}
           </form>
         </div>
       </Container>
