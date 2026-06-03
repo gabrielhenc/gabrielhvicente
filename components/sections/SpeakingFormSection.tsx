@@ -38,16 +38,15 @@ export default function SpeakingFormSection() {
     body: JSON.stringify(payload),
   });
 
-  const result = await response.json();
+  const result = await response.json().catch(() => null);
 
-  if (!response.ok || !result.success) {
-    console.error("Erro no envio:", result);
-    throw new Error("Erro ao enviar formulário");
-  }
+if (!response.ok) {
+  console.error("Erro no envio:", result);
+  throw new Error("Erro ao enviar formulário");
+}
 
-  setStatus("success");
-  event.currentTarget.reset();
-} catch {
+setStatus("success");
+event.currentTarget.reset(); catch {
       setStatus("error");
     } finally {
       setIsSubmitting(false);
