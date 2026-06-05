@@ -4,6 +4,7 @@ import { useState } from "react";
 import Container from "@/components/ui/Container";
 import { siteConfig } from "@/lib/site";
 import { ArrowUpRight, MessageCircle } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 export default function SpeakingFormSection() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,6 +41,10 @@ export default function SpeakingFormSection() {
       });
 
       if (response.status === 200) {
+        trackEvent("form_palestra_enviado", {
+          origem: "formulario_site",
+        });
+
         setStatus("success");
         form.reset();
       } else {
