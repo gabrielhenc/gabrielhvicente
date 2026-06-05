@@ -1,12 +1,30 @@
+"use client";
+
 import Container from "@/components/ui/Container";
+import { trackEvent } from "@/lib/analytics";
 import { siteConfig } from "@/lib/site";
 import { ArrowUpRight } from "lucide-react";
 import { FaInstagram, FaLinkedin, FaYoutube } from "react-icons/fa";
 
 const socialLinks = [
-  { label: "YouTube", href: siteConfig.links.youtube, icon: FaYoutube },
-  { label: "Instagram", href: siteConfig.links.instagram, icon: FaInstagram },
-  { label: "LinkedIn", href: siteConfig.links.linkedin, icon: FaLinkedin },
+  {
+    label: "YouTube",
+    href: siteConfig.links.youtube,
+    icon: FaYoutube,
+    eventName: "youtube_click",
+  },
+  {
+    label: "Instagram",
+    href: siteConfig.links.instagram,
+    icon: FaInstagram,
+    eventName: "instagram_click",
+  },
+  {
+    label: "LinkedIn",
+    href: siteConfig.links.linkedin,
+    icon: FaLinkedin,
+    eventName: "linkedin_click",
+  },
 ];
 
 export default function Footer() {
@@ -28,6 +46,11 @@ export default function Footer() {
               href={siteConfig.links.whatsapp}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() =>
+                trackEvent("whatsapp_click", {
+                  origem: "footer",
+                })
+              }
               className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-[#FF6E02] transition hover:text-white"
             >
               Falar com Gabriel
@@ -47,6 +70,11 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={social.label}
+                    onClick={() =>
+                      trackEvent(social.eventName, {
+                        origem: "footer",
+                      })
+                    }
                     className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-zinc-300 transition hover:border-[#FF6E02]/50 hover:bg-[#FF6E02]/10 hover:text-[#FF6E02]"
                   >
                     <Icon className="text-[21px]" />
